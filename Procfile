@@ -1,1 +1,1 @@
-web: java -jar target/ip-blacklists-1.0.jar
+web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/ip-blacklists-1.0.jar
