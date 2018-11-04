@@ -1,0 +1,1 @@
+web: java -jar target/ip-blacklists-1.0.jar
