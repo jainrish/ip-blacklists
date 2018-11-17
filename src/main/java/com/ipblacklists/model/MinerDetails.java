@@ -57,4 +57,11 @@ public class MinerDetails {
 		this.timeStamp = timeStamp;
 	}
 
+	@Override
+	public String toString() {
+		return "MinerDetails [websiteURL=" + websiteURL + ", user=" + user + ", minerCount=" + minerCount
+				+ ", minerURL=" + minerURL + ", timeStamp=" + timeStamp + "]";
+	}
+
+	
 }

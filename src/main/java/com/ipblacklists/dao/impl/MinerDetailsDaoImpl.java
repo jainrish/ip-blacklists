@@ -1,77 +1,138 @@
 package com.ipblacklists.dao.impl;
 
-import static com.ipblacklists.constants.IConstants.*;
+import static com.ipblacklists.constants.IConstants.CREATE_MINER_DETAILS_TABLE;
+import static com.ipblacklists.constants.IConstants.DELETE_MINER_DETAILS;
+import static com.ipblacklists.constants.IConstants.DROP_TABLE_MINER_DETAILS;
+import static com.ipblacklists.constants.IConstants.GET_MINER_DETAILS_BY_WEBSITE;
+import static com.ipblacklists.constants.IConstants.GET_MINER_WEBSITES;
+import static com.ipblacklists.constants.IConstants.GET_NON_MINER_WEBSITES;
+import static com.ipblacklists.constants.IConstants.GET_TOTAL_COUNT;
+import static com.ipblacklists.constants.IConstants.INSERT_MINER_DETAILS;
+import static com.ipblacklists.constants.IConstants.UPDATE_MINER_DETAILS;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Repository;
 
 import com.ipblacklists.dao.MinerDetailsDao;
+import com.ipblacklists.dao.rowmappers.RowMappers;
 import com.ipblacklists.model.MinerDetails;
-@Repository
-public class MinerDetailsDaoImpl extends JdbcDaoSupport implements MinerDetailsDao{
 
-	@Autowired 
-    DataSource dataSource;
- 
-    @PostConstruct
-    private void initialize(){
-        setDataSource(dataSource);
-    }
-	
+@Repository
+public class MinerDetailsDaoImpl extends JdbcDaoSupport implements MinerDetailsDao {
+
+	AtomicInteger totalWebsitesCount;
+	Map<String, MinerDetails> minerMap;
+
+	@Autowired
+	DataSource dataSource;
+
+	@PostConstruct
+	private void initialize() {
+		setDataSource(dataSource);
+		totalWebsitesCount = new AtomicInteger(getAllWebsitesCount());
+		minerMap = getAllMinerDetails().stream()
+				.collect(Collectors.toMap(miner -> miner.getWebsiteURL(), miner -> miner));
+	}
+
+	private void createTable() {
+		getJdbcTemplate().update(DROP_TABLE_MINER_DETAILS);
+		getJdbcTemplate().update(CREATE_MINER_DETAILS_TABLE);
+		totalWebsitesCount = new AtomicInteger(0);
+		minerMap = new HashMap<>();
+	}
+
+	private int getAllWebsitesCount() {
+		return getJdbcTemplate().queryForList(GET_TOTAL_COUNT, Integer.class).get(0);
+	}
+
+	public List<MinerDetails> getAllMiningWebsites() {
+		return getJdbcTemplate().query(GET_MINER_WEBSITES, RowMappers.getMinerDetailsRowMapper());
+	}
+
 	@Override
 	public List<MinerDetails> getAllMinerDetails() {
-		// TODO Auto-generated method stub
-		return null;
+		return getJdbcTemplate().query(GET_MINER_WEBSITES, RowMappers.getMinerDetailsRowMapper());
 	}
 
 	@Override
 	public MinerDetails getMinerDetailsByWebsite(String url) {
-		return null;
+		List<MinerDetails> minersList = getJdbcTemplate().query(GET_MINER_DETAILS_BY_WEBSITE, new Object[] { url },
+				RowMappers.getMinerDetailsRowMapper());
+		return CollectionUtils.isEmpty(minersList) ? null : minersList.get(0);
 	}
 
 	@Override
 	public boolean saveMinerDetails(MinerDetails minerDetails) {
 		int count = 0;
 		try {
-			count = getJdbcTemplate().update(INSERT_MINER_DETAILS);
-		} catch(Exception e) {
-			count = getJdbcTemplate().update(UPDATE_MINER_DETAILS);
+			count = getJdbcTemplate().update(INSERT_MINER_DETAILS,
+					new Object[] { minerDetails.getWebsiteURL(), minerDetails.getUser(), minerDetails.getMinerCount(),
+							minerDetails.getMinerURL(), minerDetails.getTimeStamp() });
+			if (count > 0) {
+				totalWebsitesCount.incrementAndGet();
+			}
+		} catch (Exception e) {
+			count = getJdbcTemplate().update(UPDATE_MINER_DETAILS,
+					new Object[] { minerDetails.getUser(), minerDetails.getMinerCount(), minerDetails.getMinerURL(),
+							minerDetails.getTimeStamp(), minerDetails.getWebsiteURL() });
 		}
-		return count>0?true:false;
+
+		if (count > 0) {
+			if (minerDetails.getMinerCount() > 0) {
+				minerMap.put(minerDetails.getWebsiteURL(), minerDetails);
+			} else {
+				minerMap.remove(minerDetails.getWebsiteURL());
+			}
+		}
+
+		return count > 0 ? true : false;
 	}
 
 	@Override
-	public List<MinerDetails> getMiningWebsites() {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection<MinerDetails> getMiningWebsites() {
+		return minerMap.values();
 	}
 
 	@Override
 	public List<MinerDetails> getNonMiningWebsites() {
-		// TODO Auto-generated method stub
-		return null;
+		return getJdbcTemplate().query(GET_NON_MINER_WEBSITES, RowMappers.getMinerDetailsRowMapper());
 	}
 
 	@Override
 	public int getTotalWebsitesCount() {
-		return getJdbcTemplate().queryForList(GET_TOTAL_COUNT, Integer.class).get(0);
+		return totalWebsitesCount.intValue();
 	}
 
 	@Override
 	public int getMiningWebsitesCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return minerMap.size();// getJdbcTemplate().queryForList(GET_MINER_COUNT, Integer.class).get(0);
 	}
-	
-	public void createTable() {
-		getJdbcTemplate().update(CREATE_MINER_DETAILS_TABLE);
-		
+
+	@Override
+	public int deleteWebsite(String url) {
+		int count = getJdbcTemplate().update(DELETE_MINER_DETAILS, new Object[] { url });
+		if (count > 0) {
+			totalWebsitesCount.decrementAndGet();
+			minerMap.remove(url);
+		}
+		return count;
 	}
-	
+
+	@Override
+	public int getNonMiningWebsitesCount() {
+		return getAllWebsitesCount() - minerMap.size();
+	}
+
 }
