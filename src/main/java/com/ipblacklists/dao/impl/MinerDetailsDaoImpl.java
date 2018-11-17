@@ -1,14 +1,6 @@
 package com.ipblacklists.dao.impl;
 
-import static com.ipblacklists.constants.IConstants.CREATE_MINER_DETAILS_TABLE;
-import static com.ipblacklists.constants.IConstants.DELETE_MINER_DETAILS;
-import static com.ipblacklists.constants.IConstants.DROP_TABLE_MINER_DETAILS;
-import static com.ipblacklists.constants.IConstants.GET_MINER_DETAILS_BY_WEBSITE;
-import static com.ipblacklists.constants.IConstants.GET_MINER_WEBSITES;
-import static com.ipblacklists.constants.IConstants.GET_NON_MINER_WEBSITES;
-import static com.ipblacklists.constants.IConstants.GET_TOTAL_COUNT;
-import static com.ipblacklists.constants.IConstants.INSERT_MINER_DETAILS;
-import static com.ipblacklists.constants.IConstants.UPDATE_MINER_DETAILS;
+import static com.ipblacklists.constants.IConstants.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -133,6 +125,11 @@ public class MinerDetailsDaoImpl extends JdbcDaoSupport implements MinerDetailsD
 	@Override
 	public int getNonMiningWebsitesCount() {
 		return getAllWebsitesCount() - minerMap.size();
+	}
+	
+	@Override
+	public List<MinerDetails> getAllWebsites() {
+		return getJdbcTemplate().query(GET_ALL_MINER_DETAILS, RowMappers.getMinerDetailsRowMapper());
 	}
 
 }

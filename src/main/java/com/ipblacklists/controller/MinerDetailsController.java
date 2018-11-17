@@ -32,7 +32,7 @@ public class MinerDetailsController {
 	
 	@GET
 	@RequestMapping("/minerDetails/{url}")
-	public ResponseEntity<Object> getAllMinerDetails(@PathVariable String url) {
+	public ResponseEntity<Object> getMinerDetailsByURL(@PathVariable String url) {
 		MinerDetails minerDetails = minerDetailsDao.getMinerDetailsByWebsite(url);
 		return minerDetails==null? ResponseEntity.ok("not found") : ResponseEntity.ok(minerDetails);
 	}
@@ -71,6 +71,19 @@ public class MinerDetailsController {
 		return saved? ResponseEntity.ok("saved successfully") : ResponseEntity.ok("not saved");
 		
 	}
+	
+	@GET
+	@RequestMapping("/getAllWebsites")
+	public ResponseEntity<Object> getAllWebsites() {
+		return ResponseEntity.ok(minerDetailsDao.getAllWebsites());
+	}
+	
+	@GET
+	@RequestMapping("/getMiningWebsites")
+	public ResponseEntity<Object> getMiningWebsites() {
+		return ResponseEntity.ok(minerDetailsDao.getMiningWebsites());
+	}
+	
 	
 	
 }

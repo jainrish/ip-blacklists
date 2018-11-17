@@ -28,7 +28,7 @@ public class MinerDetailsControllerTest {
 		Assert.assertEquals(1, minerDetailsDao.getTotalWebsitesCount());
 		Assert.assertEquals(1, minerDetailsDao.getMiningWebsitesCount());
 		
-		System.out.println(minerDetailsController.getAllMinerDetails("https://rishjain.me"));
+		System.out.println(minerDetailsController.getMinerDetailsByURL("https://rishjain.me"));
 		minerDetailsDao.deleteWebsite("https://rishjain.me");
 		Assert.assertEquals(0, minerDetailsDao.getTotalWebsitesCount());
 		Assert.assertEquals(0, minerDetailsDao.getMiningWebsitesCount());
@@ -53,7 +53,7 @@ public class MinerDetailsControllerTest {
 		Assert.assertEquals(0, minerDetailsController.getMiningWebsitesCount().getBody());
 		Assert.assertEquals(2, minerDetailsController.getNonMiningWebsitesCount().getBody());
 		
-		System.out.println(minerDetailsController.getAllMinerDetails("https://rishjain.me"));
+		System.out.println(minerDetailsController.getMinerDetailsByURL("https://rishjain.me"));
 		minerDetailsDao.deleteWebsite("https://rishjain.me");
 		Assert.assertEquals(1, minerDetailsController.getTotalWebsitesCount().getBody());
 		Assert.assertEquals(0, minerDetailsController.getMiningWebsitesCount().getBody());

@@ -16,4 +16,5 @@ public interface MinerDetailsDao {
 	public int getMiningWebsitesCount();
 	public int deleteWebsite(String url);
 	public int getNonMiningWebsitesCount();
+	public List<MinerDetails> getAllWebsites();
 }
