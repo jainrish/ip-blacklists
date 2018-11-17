@@ -1,5 +1,7 @@
 package com.ipblacklists.dao.impl;
 
+import static com.ipblacklists.constants.IConstants.*;
+
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -9,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Repository;
 
-import com.ipblacklists.constants.IConstants;
 import com.ipblacklists.dao.MinerDetailsDao;
 import com.ipblacklists.model.MinerDetails;
-import static com.ipblacklists.constants.IConstants.*;
 @Repository
 public class MinerDetailsDaoImpl extends JdbcDaoSupport implements MinerDetailsDao{
 
@@ -32,14 +32,18 @@ public class MinerDetailsDaoImpl extends JdbcDaoSupport implements MinerDetailsD
 
 	@Override
 	public MinerDetails getMinerDetailsByWebsite(String url) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean saveMinerDetails(MinerDetails minerDetails) {
-		// TODO Auto-generated method stub
-		return false;
+		int count = 0;
+		try {
+			count = getJdbcTemplate().update(INSERT_MINER_DETAILS);
+		} catch(Exception e) {
+			count = getJdbcTemplate().update(UPDATE_MINER_DETAILS);
+		}
+		return count>0?true:false;
 	}
 
 	@Override

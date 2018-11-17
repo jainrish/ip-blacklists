@@ -7,6 +7,15 @@ public class MinerDetails {
 	private int minerCount;
 	private String minerURL;
 	private String timeStamp;
+	
+	public MinerDetails(String websiteURL, String user, int minerCount, String minerURL, String timeStamp) {
+		super();
+		this.websiteURL = websiteURL;
+		this.user = user;
+		this.minerCount = minerCount;
+		this.minerURL = minerURL;
+		this.timeStamp = timeStamp;
+	}
 
 	public String getWebsiteURL() {
 		return websiteURL;
