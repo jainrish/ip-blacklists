@@ -7,10 +7,13 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.stereotype.Repository;
 
+import com.ipblacklists.constants.IConstants;
 import com.ipblacklists.dao.MinerDetailsDao;
 import com.ipblacklists.model.MinerDetails;
-
+import static com.ipblacklists.constants.IConstants.*;
+@Repository
 public class MinerDetailsDaoImpl extends JdbcDaoSupport implements MinerDetailsDao{
 
 	@Autowired 
@@ -53,13 +56,18 @@ public class MinerDetailsDaoImpl extends JdbcDaoSupport implements MinerDetailsD
 
 	@Override
 	public int getTotalWebsitesCount() {
-		return getJdbcTemplate().queryForList("select count(*) from minerdetails", Integer.class).get(0);
+		return getJdbcTemplate().queryForList(GET_TOTAL_COUNT, Integer.class).get(0);
 	}
 
 	@Override
 	public int getMiningWebsitesCount() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	public void createTable() {
+		getJdbcTemplate().update(CREATE_MINER_DETAILS_TABLE);
+		
 	}
 	
 }
